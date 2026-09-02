@@ -1,0 +1,474 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Brian TTS Reader</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #view {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 188, 212, 0.3);
+
+            width: 100%;
+            max-width: 700px;
+
+            text-align: center;
+        }
+
+        h3 {
+            color: #00bcd4;
+            margin-top: 0;
+            margin-bottom: 15px;
+
+            font-size: 22px;
+            font-weight: 300;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+
+            margin: 8px 0 15px;
+
+            border: 1px solid #333;
+            border-radius: 6px;
+
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+
+            font-size: 15px;
+            line-height: 1.4;
+
+            resize: vertical;
+        }
+
+        textarea::placeholder {
+            color: #777;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+
+            margin-bottom: 15px;
+
+            border: 1px solid #333;
+            border-radius: 6px;
+
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #00bcd4;
+            color: #121212;
+
+            padding: 10px 20px;
+            margin: 8px 4px 15px;
+
+            border: none;
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-size: 15px;
+            font-weight: bold;
+
+            text-transform: uppercase;
+            letter-spacing: 1px;
+
+            transition:
+                background-color 0.3s ease,
+                box-shadow 0.3s ease,
+                transform 0.2s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #0097a7;
+
+            box-shadow: 0 0 15px rgba(0, 188, 212, 0.5);
+
+            transform: translateY(-2px);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #555;
+            color: #888;
+
+            cursor: not-allowed;
+
+            box-shadow: none;
+            transform: none;
+        }
+
+        #stopButton {
+            background-color: #d9534f;
+            color: white;
+        }
+
+        #stopButton:hover:not(:disabled) {
+            background-color: #c9302c;
+        }
+
+        #message {
+            color: #00bcd4;
+            font-size: 13px;
+        }
+
+        #status {
+            display: block;
+
+            color: #888;
+
+            font-size: 13px;
+
+            margin-bottom: 15px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #333;
+
+            margin: 15px 0;
+        }
+
+        .credits {
+            font-size: 12px;
+            color: #888;
+
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        a {
+            color: #00bcd4;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #1cffff;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="view">
+
+    <h3>Brian TTS Reader</h3>
+
+    <textarea
+        id="text"
+        rows="8"
+        maxlength="15000"
+        placeholder="Enter text here..."
+    ></textarea>
+
+    <select id="voiceSelect">
+        <option>Loading voices...</option>
+    </select>
+
+    <br>
+
+    <button type="button" id="button">
+        PLAY
+    </button>
+
+    <button type="button" id="stopButton">
+        STOP
+    </button>
+
+    <br>
+
+    Number of Characters:
+    <span id="message">0</span>
+
+    <span id="status">
+        Ready
+    </span>
+
+    <hr>
+
+    <p class="credits">
+        Powered by your browser's built-in Text-to-Speech
+    </p>
+
+    <a
+        href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        Web Speech API
+    </a>
+
+</div>
+
+
+<script>
+
+    
+    // TEXT TO SPEECH
+
+    const synth = window.speechSynthesis;
+
+    const textBox = document.getElementById("text");
+    const voiceSelect = document.getElementById("voiceSelect");
+
+    const playButton = document.getElementById("button");
+    const stopButton = document.getElementById("stopButton");
+
+    const message = document.getElementById("message");
+    const status = document.getElementById("status");
+
+
+    let voices = [];
+
+
+    // LOAD VOICES
+
+
+    function loadVoices() {
+
+        voices = synth.getVoices();
+
+        voiceSelect.innerHTML = "";
+
+        if (voices.length === 0) {
+
+            const option = document.createElement("option");
+
+            option.textContent = "No voices found";
+
+            voiceSelect.appendChild(option);
+
+            status.textContent = "No TTS voices available";
+
+            return;
+        }
+
+
+        voices.forEach((voice, index) => {
+
+            const option = document.createElement("option");
+
+            option.value = index;
+
+            option.textContent =
+                `${voice.name} (${voice.lang})`;
+
+            if (voice.default) {
+
+                option.textContent += " — DEFAULT";
+
+            }
+
+            voiceSelect.appendChild(option);
+
+        });
+
+
+        const englishVoiceIndex =
+            voices.findIndex(voice =>
+                voice.lang.toLowerCase().startsWith("en")
+            );
+
+
+        if (englishVoiceIndex !== -1) {
+
+            voiceSelect.value = englishVoiceIndex;
+
+        }
+
+
+        status.textContent =
+            `${voices.length} voice(s) available`;
+    }
+
+
+    // Chrome may load voices asynchronously
+    loadVoices();
+
+    if ("onvoiceschanged" in synth) {
+
+        synth.onvoiceschanged = loadVoices;
+
+    }
+
+
+    // PLAY
+
+    function speakText() {
+
+        const text = textBox.value.trim();
+
+
+        if (!text) {
+
+            status.textContent =
+                "Please enter some text.";
+
+            return;
+        }
+
+
+        // Stop anything currently speaking
+        synth.cancel();
+
+
+        const utterance =
+            new SpeechSynthesisUtterance(text);
+
+
+        const selectedIndex =
+            Number(voiceSelect.value);
+
+
+        if (
+            voices[selectedIndex]
+        ) {
+
+            utterance.voice =
+                voices[selectedIndex];
+
+        }
+
+
+        // Speech settings
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+
+        utterance.onstart = function () {
+
+            status.textContent =
+                "Speaking...";
+        };
+
+
+        utterance.onend = function () {
+
+            status.textContent =
+                "Finished";
+        };
+
+
+        utterance.onerror = function (event) {
+
+            console.error(
+                "Speech error:",
+                event
+            );
+
+            status.textContent =
+                "Speech error: " + event.error;
+        };
+
+
+        synth.speak(utterance);
+    }
+
+
+
+    function stopSpeech() {
+
+        synth.cancel();
+
+        status.textContent =
+            "Stopped";
+    }
+
+
+   
+    // CHARACTER COUNTER
+
+    textBox.addEventListener(
+        "input",
+        function () {
+
+            message.textContent =
+                textBox.value.length;
+
+        }
+    );
+
+
+
+    playButton.addEventListener(
+        "click",
+        speakText
+    );
+
+
+    stopButton.addEventListener(
+        "click",
+        stopSpeech
+    );
+
+
+    // CTRL + ENTER
+
+    textBox.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Enter" &&
+                event.ctrlKey
+            ) {
+
+                event.preventDefault();
+
+                speakText();
+
+            }
+
+        }
+    );
+
+
+
+
+    if (!("speechSynthesis" in window)) {
+
+        status.textContent =
+            "Text-to-Speech is not supported in this browser.";
+
+        playButton.disabled = true;
+        stopButton.disabled = true;
+
+    }
+
+</script>
+
+</body>
+</html>
+
