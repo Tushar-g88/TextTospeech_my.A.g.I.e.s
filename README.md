@@ -7,6 +7,7 @@
 [![Pygame](https://img.shields.io/badge/Pygame-Audio-00A86B)](https://www.pygame.org/)
 [![Selenium](https://img.shields.io/badge/Selenium-Automation-43B02A?logo=selenium\&logoColor=white)](https://www.selenium.dev/)
 [![Status](https://img.shields.io/badge/Status-Active%20Development-orange)](#roadmap)
+[![license](https://github.com/Tushar-g88/TextTospeech_my.A.g.I.e.s/blob/main/)](#LICENSE)
 
 ---
 
