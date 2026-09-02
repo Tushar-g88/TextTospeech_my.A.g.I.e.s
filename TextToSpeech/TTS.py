@@ -6,5 +6,5 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-speak("motherfuker")
-speak("motherfuker")
+speak("I AM AGIES")
+speak("What can i do for you")
