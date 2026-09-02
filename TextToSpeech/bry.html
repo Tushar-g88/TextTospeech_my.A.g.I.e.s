@@ -252,9 +252,6 @@
     let voices = [];
 
 
-    // LOAD VOICES
-
-
     function loadVoices() {
 
         voices = synth.getVoices();
@@ -312,8 +309,6 @@
             `${voices.length} voice(s) available`;
     }
 
-
-    // Chrome may load voices asynchronously
     loadVoices();
 
     if ("onvoiceschanged" in synth) {
@@ -407,9 +402,6 @@
     }
 
 
-   
-    // CHARACTER COUNTER
-
     textBox.addEventListener(
         "input",
         function () {
@@ -432,9 +424,6 @@
         "click",
         stopSpeech
     );
-
-
-    // CTRL + ENTER
 
     textBox.addEventListener(
         "keydown",
