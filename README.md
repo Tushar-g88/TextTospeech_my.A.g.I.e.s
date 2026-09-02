@@ -89,10 +89,10 @@ TextToSpeech/
 
 ## 🚀 Installation
 
-### 1. Clone the repository
+### 1. The repository
 
 ```bash
-git clone https://github.com/Tushar-g88/TextTospeech_my.A.g.I.e.s.git
+git https://github.com/Tushar-g88/TextTospeech_my.A.g.I.e.s.git
 ```
 
 ### 2. Open the project
